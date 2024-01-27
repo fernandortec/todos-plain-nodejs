@@ -16,10 +16,14 @@ export class Database {
     return rowIndex
   }
 
-  constructor() {
+  #readFileAndPersist() {
     fs.readFile(databasePath, 'utf-8').then(data => { this.#database = JSON.parse(data) }).catch(() => {
       this.#persist()
     })
+  }
+
+  constructor() {
+    this.#readFileAndPersist()
   }
 
   addTable(tableName) {
@@ -43,7 +47,10 @@ export class Database {
   }
 
   select(tableName) {
-    const items = this.#database[tableName];
+    this.#readFileAndPersist()
+
+    const items = this.#database[tableName]
+
     return items
   }
 

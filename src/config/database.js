@@ -31,6 +31,13 @@ export class Database {
     const tableExists = this.#database[tableName]
     if (!tableExists) throw new Error("Table does not exists")
 
+    data = {
+      ...data,
+      created_at: new Date(),
+      updated_at: new Date(),
+      completed_at: null,
+    }
+
     this.#database[tableName].push(data)
     this.#persist()
   }
@@ -50,7 +57,9 @@ export class Database {
   update(tableName, id, data) {
     const rowIndex = this.#findIndexById(tableName, id)
 
-    this.#database[tableName][rowIndex] = { id, ...data }
+    const item = this.#database[tableName][rowIndex]
+    this.#database[tableName][rowIndex] = { id, ...item, ...data }
+
     this.#persist()
   }
 }

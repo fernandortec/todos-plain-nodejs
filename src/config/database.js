@@ -9,9 +9,11 @@ export class Database {
     fs.writeFile(databasePath, JSON.stringify(this.#database))
   }
 
-  #findIndexById() {
-    const rowIndex = this.#database[table].findIndex(row => row.id === id)
-    console.log(rowIndex)
+  #findIndexById(tableName, id) {
+    const rowIndex = this.#database[tableName].findIndex(row => row.id === id)
+    if (rowIndex === -1) throw new Error("Item does not exists")
+
+    return rowIndex
   }
 
   constructor() {
@@ -30,6 +32,7 @@ export class Database {
     if (!tableExists) throw new Error("Table does not exists")
 
     this.#database[tableName].push(data)
+    this.#persist()
   }
 
   select(tableName) {
@@ -37,21 +40,17 @@ export class Database {
     return items
   }
 
-  delete(table, id) {
-    const rowIndex = this.#findIndexById(id)
+  delete(tableName, id) {
+    const rowIndex = this.#findIndexById(tableName, id)
 
-    if (rowIndex > -1) {
-      this.#database[table].splice(rowIndex, 1)
-      this.#persist()
-    }
+    this.#database[tableName].splice(rowIndex, 1)
+    this.#persist()
   }
 
-  update(table, id, data) {
-    const rowIndex = this.#findIndexById(id)
+  update(tableName, id, data) {
+    const rowIndex = this.#findIndexById(tableName, id)
 
-    if (rowIndex > -1) {
-      this.#database[table][rowIndex] = { id, ...data }
-      this.#persist()
-    }
+    this.#database[tableName][rowIndex] = { id, ...data }
+    this.#persist()
   }
 }

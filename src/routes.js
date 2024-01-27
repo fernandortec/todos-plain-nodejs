@@ -4,6 +4,12 @@ import { randomUUID } from 'node:crypto'
 
 const database = new Database()
 
+const enforceValidValues = (title, description, res) => {
+  if (!title || !description || !title.length || !description.length) {
+    return res.writeHead(400).end("One or more values are invalid")
+  }
+}
+
 export const routes = [
   {
     method: "GET",
@@ -17,13 +23,9 @@ export const routes = [
     method: "POST",
     path: buildRoutePath("/todos"),
     handler: (req, res) => {
-      if (!req.body) return res.writeHead(400).end("Body must be present in request")
-
       const { title, description } = req.body
 
-      if (!title || !description || !title.length || !description.length) {
-        return res.writeHead(400).end("One or more values are invalid")
-      }
+      enforceValidValues(title, description, res)
 
       const todosExist = database.select("todos").find(todo => todo.title === title)
       if (todosExist) return res.writeHead(400).end("Todo already exists")
@@ -37,6 +39,30 @@ export const routes = [
       database.insert("todos", todo)
 
       return res.writeHead(201).end()
+    }
+  },
+  {
+    method: "PUT",
+    path: buildRoutePath("/todos/:id"),
+    handler: (req, res) => {
+      const { id } = req.params
+      const { title, description } = req.body
+
+      enforceValidValues(title, description, res)
+      database.update('todos', id, { title, description })
+
+      return res.writeHead(204).end()
+    }
+  },
+  {
+    method: "DELETE",
+    path: buildRoutePath("/todos/:id"),
+    handler: (req, res) => {
+      const { id } = req.params
+
+      database.delete('todos', id)
+
+      return res.writeHead(204).end()
     }
   }
 ]

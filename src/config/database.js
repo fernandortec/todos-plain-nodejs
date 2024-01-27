@@ -26,4 +26,9 @@ export class Database {
 
     this.#database[tableName].push(data)
   }
+
+  select(tableName) {
+    const items = this.#database[tableName];
+    return items
+  }
 }
